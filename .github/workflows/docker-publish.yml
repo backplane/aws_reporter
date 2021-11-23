@@ -11,7 +11,7 @@ env:
   REGISTRY: docker.io
   ORG: backplane
   IMAGE: aws_reporter
-  PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   build-push:
