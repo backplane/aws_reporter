@@ -10,13 +10,15 @@ RUN set -eux; \
 ARG NONROOT_UID=1000 NONROOT_GID=1000
 
 RUN set -eux; \
-  addgroup --gid "$NONROOT_GID" nonroot; \
-  adduser \
-    --home "/work" \
+  groupadd \
+    --gid "$NONROOT_GID" \
+    nonroot; \
+  useradd \
+    --home-dir "/work" \
     --shell "/bin/sh" \
     --uid "$NONROOT_UID" \
-    --ingroup "nonroot" \
-    --disabled-password \
+    --gid "nonroot" \
+    --create-home \
     nonroot;
 
 USER nonroot
