@@ -1,4 +1,4 @@
-astroid==2.8.5
+astroid==2.9.0
 attrs==21.2.0
 awscrt==0.12.5
 bandit==1.7.1
