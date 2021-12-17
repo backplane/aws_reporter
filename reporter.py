@@ -4,9 +4,10 @@ import argparse
 import csv
 import json
 import logging
+import os
 import shlex
 import sys
-from typing import Any, Dict, Final, List, Union
+from typing import Any, Dict, Final, List, Optional, Union
 
 import boto3
 
@@ -149,6 +150,11 @@ def main() -> int:
     """
     entrypoint for direct execution; returns an integer suitable for use with sys.exit
     """
+
+    default_profile: Optional[str] = "default"
+    if os.environ.get("AWS_EXECUTION_ENV") == "CloudShell":
+        default_profile = None
+
     argp = argparse.ArgumentParser(
         description=("generates a CSV report from AWS API data on stdout"),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -161,7 +167,7 @@ def main() -> int:
     argp.add_argument(
         "--profile",
         type=str,
-        default="default",
+        default=default_profile,
         help="the AWS profile name to use for connecting to the API",
     )
     argp.add_argument(
