@@ -41,7 +41,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.IMAGE }}
+          images: |
+            ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.IMAGE }}
+            ghcr.io/${{ env.GITHUB_REPOSITORY }}
           tags: |
             type=raw,value=latest
           flavor: |
