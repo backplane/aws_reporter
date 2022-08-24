@@ -51,7 +51,7 @@ jobs:
         with:
           images: |
             ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.IMAGE }}
-            ghcr.io/${{ env.GITHUB_REPOSITORY }}
+            ghcr.io/${{ github.repository }}
           tags: |
             type=raw,value=latest
           flavor: |
