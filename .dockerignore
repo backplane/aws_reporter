@@ -1,6 +1,10 @@
+**/.DS_Store
+**/.mypy_cache
+**/__pycache__
 .git
 .github
 .gitignore
-.mypy_cache
+.venv
+.yamllint.yaml
 Makefile
 venv

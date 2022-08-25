@@ -1,10 +1,10 @@
 FROM python:3-slim
 LABEL maintainer="Backplane BV <backplane@users.noreply.github.com>"
 
-COPY reporter.py requirements.txt LICENSE /app/
+COPY LICENSE requirements.txt /
 
 RUN set -eux; \
-  pip install -r /app/requirements.txt; \
+  pip install -r /requirements.txt; \
   pip cache purge;
 
 ARG NONROOT_UID=1000 NONROOT_GID=1000
@@ -21,7 +21,10 @@ RUN set -eux; \
     --create-home \
     nonroot;
 
+ENV PYTHONPATH="/app"
+COPY src /app/
+
 USER nonroot
 WORKDIR /work
 
-ENTRYPOINT ["/app/reporter.py"]
+ENTRYPOINT ["/usr/local/bin/python3", "-m", "aws_reporter"]

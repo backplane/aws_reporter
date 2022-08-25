@@ -189,6 +189,7 @@ def main() -> int:
         default_profile = None
 
     argp = argparse.ArgumentParser(
+        prog=__package__,
         description=("generates a CSV report from AWS API data on stdout"),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
