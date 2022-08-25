@@ -17,6 +17,8 @@ class KeyPathNoDefault:
     A token used by get_keypath to represent the absence of a default argument
     """
 
+    pass
+
 
 def get_keypath(
     obj: Dict,
@@ -166,7 +168,7 @@ def sg_report(data: Any) -> int:
         data["SecurityGroupRules"],
         key=lambda x: (x["GroupId"], x["SecurityGroupRuleId"]),
     ):
-        logging.info("sg_report: rule %s", json.dumps(rule))
+        # logging.debug("sg_report: rule %s", json.dumps(rule))
         outputs: Dict[str, str] = {
             key: get_keypath(rule, key, default="--")
             for key in fields
@@ -238,7 +240,7 @@ def main() -> int:
             rds = session.client("rds")
             data = rds.describe_db_instances()
         elif args.sg:
-            sg = session.client("sg")
+            sg = session.client("ec2")
             data = sg.describe_security_group_rules()
         else:
             raise RuntimeError("unreachable code reached?")
