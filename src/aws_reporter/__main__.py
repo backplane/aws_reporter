@@ -11,6 +11,11 @@ from typing import Any, Dict, Final, List, Optional, Union
 
 import boto3
 
+# some constants used later
+EC2: Final = "ec2"
+RDS: Final = "rds"
+SG: Final = "sg"
+
 
 class KeyPathNoDefault:
     """
@@ -196,18 +201,21 @@ def main() -> int:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     argp.add_argument(
+        "-d",
         "--debug",
         action="store_true",
         help="enable debug output",
     )
     argp.add_argument(
+        "-p",
         "--profile",
         type=str,
         default=default_profile,
         help="the AWS profile name to use for connecting to the API",
     )
     argp.add_argument(
-        "--jsonfile",
+        "-i",
+        "--inputjson",
         type=str,
         help=(
             "run the report against a JSON file instead of using the API - the file "
@@ -215,10 +223,15 @@ def main() -> int:
             "'aws rds describe-db-instances' or 'aws ec2 describe-instances'"
         ),
     )
-    mode = argp.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--ec2", action="store_true", help="run ec2 instance report")
-    mode.add_argument("--rds", action="store_true", help="run rds instance report")
-    mode.add_argument("--sg", action="store_true", help="run ec2 security group report")
+    argp.add_argument(
+        "mode",
+        choices=(
+            EC2,
+            RDS,
+            SG,
+        ),
+        help="select a report to run",
+    )
     args = argp.parse_args()
 
     boto3.set_stream_logger("", logging.INFO)
@@ -228,31 +241,23 @@ def main() -> int:
         level=logging.DEBUG if args.debug else logging.INFO,
     )
 
-    data = None
-    if args.jsonfile:
-        data = load_json_file(args.jsonfile)
+    # get the data
+    if args.inputjson:
+        data = load_json_file(args.inputjson)
     else:
         session = boto3.session.Session(profile_name=args.profile)
-        if args.ec2:
-            ec2 = session.client("ec2")
-            data = ec2.describe_instances()
-        elif args.rds:
-            rds = session.client("rds")
-            data = rds.describe_db_instances()
-        elif args.sg:
-            sg = session.client("ec2")
-            data = sg.describe_security_group_rules()
-        else:
-            raise RuntimeError("unreachable code reached?")
+        data = {
+            EC2: lambda: session.client(EC2).describe_instances(),
+            RDS: lambda: session.client(RDS).describe_db_instances(),
+            SG: lambda: session.client(EC2).describe_security_group_rules(),
+        }[args.mode]()
 
-    if args.ec2:
-        ec2_report(data)
-    elif args.rds:
-        rds_report(data)
-    elif args.sg:
-        sg_report(data)
-    else:
-        raise RuntimeError("unreachable code reached?")
+    # run the report on the data
+    {
+        EC2: lambda x: ec2_report(x),
+        RDS: lambda x: rds_report(x),
+        SG: lambda x: sg_report(x),
+    }[args.mode](data)
 
     return 0
 
