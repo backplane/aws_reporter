@@ -146,6 +146,39 @@ def rds_report(data: Any) -> int:
     return rowcount
 
 
+def sg_report(data: Any) -> int:
+    fields: Final = (
+        "GroupId",
+        "SecurityGroupRuleId",
+        "CidrIpv4",
+        "Description",
+        "ToPort",
+    )
+    # this is a subset of the above, it identifies values that aren't directly
+    # at a keypath
+    computed_fields: Final = ()
+
+    csvout = csv.DictWriter(sys.stdout, fields)
+    csvout.writeheader()
+    rowcount = 0
+
+    for rule in sorted(
+        data["SecurityGroupRules"],
+        key=lambda x: (x["GroupId"], x["SecurityGroupRuleId"]),
+    ):
+        logging.info("sg_report: rule %s", json.dumps(rule))
+        outputs: Dict[str, str] = {
+            key: get_keypath(rule, key, default="--")
+            for key in fields
+            if key not in computed_fields
+        }
+        csvout.writerow(outputs)
+        rowcount += 1
+
+    logging.info("sg_report: wrote %s rows", rowcount)
+    return rowcount
+
+
 def main() -> int:
     """
     entrypoint for direct execution; returns an integer suitable for use with sys.exit
@@ -180,8 +213,9 @@ def main() -> int:
         ),
     )
     mode = argp.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--ec2", action="store_true", help="run the EC2 instance report")
-    mode.add_argument("--rds", action="store_true", help="run the RDS instance report")
+    mode.add_argument("--ec2", action="store_true", help="run ec2 instance report")
+    mode.add_argument("--rds", action="store_true", help="run rds instance report")
+    mode.add_argument("--sg", action="store_true", help="run ec2 security group report")
     args = argp.parse_args()
 
     boto3.set_stream_logger("", logging.INFO)
@@ -202,6 +236,9 @@ def main() -> int:
         elif args.rds:
             rds = session.client("rds")
             data = rds.describe_db_instances()
+        elif args.sg:
+            sg = session.client("sg")
+            data = sg.describe_security_group_rules()
         else:
             raise RuntimeError("unreachable code reached?")
 
@@ -209,6 +246,8 @@ def main() -> int:
         ec2_report(data)
     elif args.rds:
         rds_report(data)
+    elif args.sg:
+        sg_report(data)
     else:
         raise RuntimeError("unreachable code reached?")
 

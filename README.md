@@ -9,18 +9,19 @@ The program prints its output to the standard output. Use the profile name to se
 This is help text printed when the program is invoked with `-h` or `--help` arguments:
 
 ```
-usage: reporter.py [-h] [--debug] [--profile PROFILE] [--jsonfile JSONFILE] (--ec2 | --rds)
+usage: reporter.py [-h] [--debug] [--profile PROFILE] [--jsonfile JSONFILE] (--ec2 | --rds | --sg)
 
 generates a CSV report from AWS API data on stdout
 
-optional arguments:
+options:
   -h, --help           show this help message and exit
   --debug              enable debug output (default: False)
   --profile PROFILE    the AWS profile name to use for connecting to the API (default: default)
-  --jsonfile JSONFILE  run the report against a JSON file instead of using the API - the file must be in the format returned by the commands: 'aws rds describe-db-instances' or 'aws ec2 describe-instances'
-                       (default: None)
-  --ec2                run the EC2 instance report (default: False)
-  --rds                run the RDS instance report (default: False)
+  --jsonfile JSONFILE  run the report against a JSON file instead of using the API - the file must be in the format returned by the commands: 'aws rds describe-db-instances' or 'aws ec2 describe-instances' (default:
+                       None)
+  --ec2                run ec2 instance report (default: False)
+  --rds                run rds instance report (default: False)
+  --sg                 run ec2 security group report (default: False)
 
 ```
 
