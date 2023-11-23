@@ -4,15 +4,12 @@ on:
     branches: [main]
     tags: [v*.*.*]
   pull_request:
-  schedule:
-    - cron: 16 9 * * *
 
 env:
   PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   build-push:
-    if: github.event_name == 'push' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     permissions:
       packages: write
