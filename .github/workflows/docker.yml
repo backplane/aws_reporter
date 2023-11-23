@@ -4,8 +4,6 @@ on:
     branches: [main]
     tags: [v*.*.*]
   pull_request:
-  schedule:
-    - cron: 16 9 * * *
 
 env:
   PLATFORMS: linux/amd64,linux/arm64
